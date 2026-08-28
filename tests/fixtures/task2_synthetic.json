@@ -1,0 +1,51 @@
+[
+  {
+    "notice_id": "SYN-001",
+    "title": "合成项目一",
+    "project_no": "P-001",
+    "publish_date": "2026-01-01",
+    "procurement_unit": {"name": "测试采购单位甲", "org_type": "采购单位"},
+    "agency": {"name": "测试代理机构", "org_type": "代理机构"},
+    "packages": [{
+      "package_no": "包1",
+      "bidders": [
+        {"org": {"name": "甲 供应商有限公司", "org_type": "中标供应商"}, "amount_yuan": 100000, "score": 95, "rank": 1, "result": "中标"},
+        {"org": {"name": "乙供应商有限公司", "org_type": "投标参与方"}, "amount_yuan": 110000, "score": 90, "rank": 2, "result": "未中标"},
+        {"org": {"name": "丙供应商有限公司", "org_type": "投标参与方"}, "amount_yuan": 120000, "score": 85, "rank": 3, "result": "未中标"}
+      ],
+      "products": [{"name": "合成产品", "category_code": "A02000000", "brand": "示例品牌", "supplier": {"name": "产品制造商", "org_type": "产品供应商"}}]
+    }],
+    "extraction_method": "synthetic_contract_test"
+  },
+  {
+    "notice_id": "SYN-002",
+    "title": "合成项目二",
+    "project_no": "P-002",
+    "publish_date": "2026-02-01",
+    "procurement_unit": {"name": "测试采购单位甲", "org_type": "采购单位"},
+    "packages": [{
+      "package_no": "包1",
+      "bidders": [
+        {"org": {"name": "乙供应商有限公司", "org_type": "中标供应商"}, "amount_yuan": 200000, "rank": 1, "result": "成交"},
+        {"org": {"name": "甲供应商有限公司", "org_type": "投标参与方"}, "amount_yuan": 190000, "rank": 2, "result": "未中标"},
+        {"org": {"name": "丁供应商有限公司", "org_type": "投标参与方"}, "amount_yuan": 210000, "rank": 3, "result": "未中标"}
+      ]
+    }],
+    "extraction_method": "synthetic_contract_test"
+  },
+  {
+    "notice_id": "SYN-003",
+    "title": "合成项目三（联合中标）",
+    "project_no": "P-003",
+    "publish_date": "2026-03-01",
+    "procurement_unit": {"name": "测试采购单位乙", "org_type": "采购单位"},
+    "packages": [{
+      "package_no": "包1",
+      "bidders": [
+        {"org": {"name": "甲供应商有限公司", "org_type": "中标供应商"}, "amount_yuan": 300000, "rank": 1, "result": "中标"},
+        {"org": {"name": "乙供应商有限公司", "org_type": "中标供应商"}, "amount_yuan": 250000, "rank": 1, "result": "中标"}
+      ]
+    }],
+    "extraction_method": "synthetic_contract_test"
+  }
+]

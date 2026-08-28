@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.example/procurement-blocks-1.1.schema.json",
+  "title": "Procurement notice unified blocks",
+  "type": "object",
+  "required": ["schema_version", "parser_version", "parser_config_digest", "parser_config", "notice_id", "title", "documents", "blocks", "stats"],
+  "properties": {
+    "schema_version": {"const": "1.1"},
+    "parser_version": {"const": "2.0.0"},
+    "parser_config_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "parser_config": {"type": "object"},
+    "notice_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string"},
+    "notice_metadata": {"type": "object"},
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["document_id", "file_name", "container_path", "file_type", "media_type", "size_bytes", "sha256", "status", "block_count", "warnings", "metadata"],
+        "properties": {
+          "document_id": {"type": "string"},
+          "file_name": {"type": "string"},
+          "container_path": {"type": "string"},
+          "file_type": {"type": "string"},
+          "media_type": {"type": "string"},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string"},
+          "status": {"enum": ["ok", "partial", "unsupported", "error"]},
+          "block_count": {"type": "integer", "minimum": 0},
+          "warnings": {"type": "array", "items": {"type": "string"}},
+          "metadata": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "text", "source", "metadata", "block_id"],
+        "properties": {
+          "type": {"enum": ["heading", "paragraph", "table", "ocr_text", "metadata", "error"]},
+          "text": {"type": "string"},
+          "rows": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}},
+          "source": {
+            "type": "object",
+            "required": ["document_id", "file_name", "container_path", "file_type"],
+            "properties": {
+              "document_id": {"type": "string"},
+              "file_name": {"type": "string"},
+              "container_path": {"type": "string"},
+              "file_type": {"type": "string"},
+              "page": {"type": "integer", "minimum": 1},
+              "sheet": {"type": "string"},
+              "paragraph_index": {"type": "integer", "minimum": 1},
+              "table_index": {"type": "integer", "minimum": 1},
+              "row_start": {"type": "integer", "minimum": 1},
+              "row_end": {"type": "integer", "minimum": 1},
+              "image_name": {"type": "string"},
+              "image_index": {"type": "integer", "minimum": 1}
+            },
+            "additionalProperties": true
+          },
+          "metadata": {"type": "object"},
+          "block_id": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "stats": {"type": "object"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+# Task-1/Task-2 controlled agents (Python 3.11, Conda Aproject)
+openai>=1.40,<3
+PyYAML>=6,<7
+pydantic>=2.9,<3
+langgraph>=1.0,<2
+
+# Pluggable no-key pilot search provider. Production may replace this with
+# Tavily, Exa, an MCP search server, or another licensed provider.
+ddgs>=9,<10
+
+# Development and verification
+pytest>=7.4,<9

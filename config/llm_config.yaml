@@ -1,0 +1,38 @@
+# DeepSeek API 配置：key 从项目根目录 .env 的 DEEPSEEK_API_KEY 读取，不写入本文件。
+backend: api
+provider: deepseek
+
+api:
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat"
+  api_key_env: "DEEPSEEK_API_KEY"
+  timeout_seconds: 180
+  max_retries: 4
+
+rate_limit:
+  max_rpm: 40
+  max_tpm: 100000
+  concurrency: 1
+
+budget:
+  max_total_tokens: 2000000
+  max_cost_yuan: 20.0
+
+silver:
+  temperature: 0.0
+  max_tokens: 8000
+  few_shot_count: 3
+  max_rows_per_request: 40
+  state_file: "run/state/deepseek_silver_state.jsonl"
+  usage_file: "run/logs/llm_usage.jsonl"
+
+local:
+  server_url: "http://127.0.0.1:1234"
+  model: "qwen/qwen3-4b-2507"
+  timeout_seconds: 900
+  max_retries: 0
+  structured_outputs: false
+  json_object: false
+  max_tokens: 4096
+  disable_thinking: false
+  context_size: 32768

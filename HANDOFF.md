@@ -1,5 +1,6 @@
 # Codex项目交接文档
 
+<<<<<<< Updated upstream
 > 交接日期：2026-08-27  
 > 工作区：`D:\all_contest\2026_8_15`  
 > Python：Conda `Aproject`，Python 3.11  
@@ -14,6 +15,28 @@
 4. 默认不再调用外部API。若用户再次明确授权，必须同时设置调用次数和Token硬上限；
 5. 不覆盖旧结果目录和`run/data/application.db`；当前全量隔离库是`run/data/full_api_20260827.db`；
 6. 当前目录不是Git仓库，不能依赖`git diff`、分支或回滚。
+=======
+> 交接日期：2026-09-03  
+> 工作区：`D:\all_contest\2026_8_15_proc-bid-ner`（Git 仓库）  
+> Python：Conda `Aproject`，Python 3.11  
+> 当前页面：v0.2 库 `run/data/v0.2_local_20260828.db` + Parser 2.1 Blocks `run/parser_2_1_20260828/notices`  
+> 上传流水线：已接通（`src/api/pipeline.py`），默认 `--pipeline-backend local`  
+> 运行时本地模型：LM Studio `qwen/qwen3-4b-2507` @ `http://127.0.0.1:1234`，上下文 32768  
+> 前端：2026-09-03 已完成展示与交互优化（导入任务简介、检索表规格、图谱静力布局）；改页面请走 Vite `5173` + 后端 `8000`  
+> v0.1 冻结库：`run/data/full_api_20260827.db`（不要覆盖）  
+> 质量说明：`run/v0.2_local_20260828/QUALITY_AND_DISPLAY.md`  
+> 流水线样本：`run/v0.2_local_20260828/PIPELINE_SAMPLES.md`
+
+## 接手后先做什么
+
+1. 先读本文，再读 `PROJECT_GUIDE.md` 和当前模块的 `docs/*.md`；
+2. 页面默认读 v0.2 库。v0.1 API 全量事实仍以 `run/full_api_20260827/FULL_PIPELINE_REPORT.md` 为准；v0.2 9B 批处理以 `QUALITY_AND_DISPLAY.md` 为准；上传闭环以 `PIPELINE_SAMPLES.md` 和当前 SQLite 计数为准。不要引用旧规则基线作为现状；
+3. 改 Vue 页面时开后端 `8000` + Vite `5173`，浏览器走 `http://127.0.0.1:5173/`；`http://127.0.0.1:8000/` 只托管上次 `npm run build` 的 `dist/`；
+4. 不要读取、打印、复制或提交 `.env`；旧 API 密钥曾在对话中暴露，应由用户轮换；
+5. 默认不再调用外部 API。若用户再次明确授权，必须同时设置调用次数和 Token 硬上限；
+6. 不覆盖 `run/data/application.db` 和冻结的 `run/data/full_api_20260827.db`；当前展示库是 `run/data/v0.2_local_20260828.db`；
+7. 不覆盖官方 `dataset_build/blocks/`（仍为 Parser 2.0）和 v0.1 结果目录；新实验写新目录。
+>>>>>>> Stashed changes
 
 ## 1. 项目目标
 
@@ -112,11 +135,20 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 
 隔离数据库：`run/data/full_api_20260827.db`。
 
+<<<<<<< Updated upstream
 - 任务一291篇/3,552实体，任务二291项目/303包件/563竞标关系，导入失败0；
 - CSV与XLSX均完整导出3,552行；
 - 五类业务场景的六个接口和项目关系图在全量库上返回非空结果；
 - 单次搜索约8ms、关系查询约2.5–4.2ms、全量XLSX约0.60s；
 - 58项pytest、Python编译检查和Vue生产构建通过。
+=======
+- 上传不再只暂存：`src/api/pipeline.py` 把 HTML/ZIP 跑完 Parser → Selector/SlotPacker → Agent → SQLite；JSON/JSONL 可直接入库；
+- SSE 在 `completed`/`failed` 结束；前端 `ImportView.vue` 用 EventSource 跟踪；
+- 默认 `APP_PIPELINE_BACKEND=local`；测试可用 `--pipeline-backend rules`；
+- 重复 `package_no` 入库时后缀 `#2`；同一包件重复机构跳过（`src/relation/store.py`）；
+- 最近一次完整 pytest：**85 项通过**（含 `tests/integration/test_pipeline.py`）；`compileall` 和 Vue 生产构建通过。
+- 2026-09-03 前端展示优化（业务流程与主视觉不变）：导入页按任务一/二切换简介与流程；检索表固定列宽/行高/滚动区；图谱改为分层静力布局，节点可拖拽且无弹力回拉。
+>>>>>>> Stashed changes
 
 这些是单次本机验收值，不是多轮并发P95。
 
@@ -129,9 +161,13 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 
 ## 4. 当前正在进行的任务
 
+<<<<<<< Updated upstream
 - 关系图已完成节点形状、连接度尺寸、长标签提示、悬停边标签和密集投标方聚合/展开改版；“默认包”按用户要求保留。
 - PDF水印过滤代码和真实单文件回归已完成。Parser 2.1.0 隔离全量已跑完：`run/parser_2_1_20260828/`，配置摘要 `f1a4cb0443b02b38af035bf43f26f97cc264315a2aba24d206a8525f5d0a5544`，291/291 成功。对比报告 `run/parser_2_1_20260828/compare_report.md`。水印只影响非金标 `20241217_23892691`（16表/800字符）。20篇金标 Block 无变化。正式 `dataset_build/blocks/` 仍为 Parser 2.0.0，尚未覆盖。
 - 下一步可只对 `20241217_23892691` 在隔离目录重跑 Selector；金标本地模型回归不必等 Parser 覆盖。
+=======
+平台页面展示与交互优化已完成（2026-09-03）。下一环节回到**抽取效果**，不是再改版式或再接通流水线。优先：
+>>>>>>> Stashed changes
 
 没有外部API批处理仍在运行。项目处于“全量外部API参考结果完成，本地LM Studio非thinking 4B已小样本接通，Parser 2.1隔离全量已对比，等待扩大回归与产品化补齐”阶段：
 
@@ -230,12 +266,26 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 | `src/relation/extractor.py`、`schema.py` | 任务二候选与数据契约 |
 | `src/relation/store.py`、`queries.py` | SQLite关系库、预计算和查询 |
 | `src/api/app.py`、`database.py` | FastAPI、证据回读、导出与任务一存储 |
+<<<<<<< Updated upstream
 | `frontend/src/` | Vue页面和ECharts组件 |
 | `scripts/run_entity_agent.py` | 任务一规则/API/本地/Replay入口 |
 | `scripts/recover_chunked_entity_request.py` | 超长任务一请求分块恢复 |
 | `scripts/rebuild_entity_results.py` | 从断点重建任务一公告结果 |
 | `scripts/run_relation_agent.py` | 任务二规则/API/本地/Replay入口 |
 | `scripts/init_app_db.py` | 导入任务一、任务二目录到SQLite |
+=======
+| `src/api/jobs.py` | 上传文件名安全化 |
+| `frontend/src/views/ImportView.vue` | 上传与 SSE；任务一/二简介和流程随切换更新 |
+| `frontend/src/views/Task1View.vue` | 标的物检索：固定规格表、行点选详情 |
+| `frontend/src/views/GraphView.vue` | 项目子图：分层静力布局、可拖拽、无弹力 |
+| `frontend/src/components/RelationChart.vue` | ECharts 图；`layout: 'none'` |
+| `frontend/src/style.css` | 主视觉（海军蓝侧栏、米色纸面、珊瑚色按钮） |
+| `frontend/vite.config.ts` | 开发服务 `127.0.0.1:5173`，`/api` 代理到 `8000` |
+| `scripts/run_server.py` | 单端口启动；`--pipeline-backend local\|rules` |
+| `scripts/run_entity_agent.py` | 任务一规则/API/本地/Replay 入口 |
+| `scripts/run_relation_agent.py` | 任务二规则/API/本地/Replay 入口 |
+| `scripts/init_app_db.py` | 导入任务一、任务二目录到 SQLite |
+>>>>>>> Stashed changes
 | `scripts/verify_full_pipeline.py` | 全量坐标、API、导出、场景和耗时验收 |
 | `scripts/summarize_agent_state.py` | 历史调用和Token统计 |
 
@@ -255,6 +305,7 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 
 ## 10. 下一步最推荐做的事情
 
+<<<<<<< Updated upstream
 1. 轮换密钥并冻结外部API结果：不要重复调用已成功的291篇；
 2. 在隔离目录重跑Parser 2.1.0，比较受水印影响的公告并重跑对应Selector；不要覆盖2.0.0正式目录；
 3. 本地模型20篇回归：使用与Parser版本一致的新请求和金标，对比同口径指标、失败率和速度；
@@ -265,6 +316,16 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 8. 官方数据到达后写薄适配器，再做并发性能、一键启动、演示和提交包。
 
 本地模型第一次测试不要直接跑291篇，也不要使用外部API目录作为输出目录。
+=======
+1. 轮换密钥；不要重复调用已成功的 291 篇外部 API；
+2. 前端展示优化已完成。改 Vue 用 Vite `5173` + 后端 `8000`，不要每次 `npm run build`；
+3. 优化任务一：`category_code` 误填品目号、弱表/正文漏抽；用 20 篇金标做同口径回归后再扩样本；
+4. 隔离补跑剩余空实体 / 失败篇（4B 或 9B 均可），输出写新目录，成功后再选择性入库；不要覆盖 `task1_full_291/` / `task2_full_291/` 里已成功 JSON；
+5. 建立任务二人工关系金标，优先多包、联合体、长表、审查结果等复杂样本；
+6. 金标双人复核；
+7. 官方数据到达后写薄适配器；再做并发性能、一键启动、演示和提交包；
+8. 若赛题最终要求自带 GGUF，再把 llama.cpp 落盘并做同口径回归；当前迭代不要把“LM Studio 能跑”写成“提交包已含模型”。
+>>>>>>> Stashed changes
 
 ## 11. 新人接手时特别注意
 
@@ -281,23 +342,51 @@ Parser和Selector完全本地运行。最终本地部署只需把Agent后端从�
 11. 当前无Git，修改前确认用户文件和旧结果，必要时使用隔离副本；
 12. 若旧文档数字冲突，以全流程报告、manifest和机器报告为准。
 
-## 常用离线验证命令
+## 常用迭代命令
+
+工作目录一律先 `cd D:\all_contest\2026_8_15_proc-bid-ner`。Python 用 Conda 环境 `Aproject` 的解释器，避免 `conda run` 把子进程挂到错误目录。
+
+### 前端迭代（改 Vue 时用这个，不要每次 `npm run build`）
+
+两个进程都要开。Vite 把 `/api` 转到 8000。浏览器打开 **`http://127.0.0.1:5173/`**，不要只开 8000（那是上次构建的 `dist/`）。
+
+终端 1，后端 API：
 
 ```powershell
-D:\anaconda\envs\Aproject\python.exe -m pytest -q `
-  --basetemp run/pytest_tmp_handoff `
-  -o cache_dir=run/pytest_cache_handoff
-
-D:\anaconda\envs\Aproject\python.exe -m compileall -q src scripts
-
-cd frontend
-npm.cmd run build
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py --host 127.0.0.1 --port 8000
 ```
 
+终端 2，Vite 热更新：
+
+```powershell
+cd frontend
+npm.cmd run dev
+```
+
+热更新丢了或代理 502 时：先确认 8000 仍在听，再重启 `npm run dev`。改 `vite.config.ts` 必须重启 Vite。
+
+### 演示 / 生产形态（单端口托管 `frontend/dist`）
+
+```powershell
+cd frontend
+npm.cmd run build
+cd ..
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py --host 127.0.0.1 --port 8000
+```
+
+<<<<<<< Updated upstream
 重建隔离数据库：
 
 ```powershell
 D:\anaconda\envs\Aproject\python.exe scripts/init_app_db.py `
+=======
+访问 `http://127.0.0.1:8000/`。
+
+切回 v0.1 冻结库：
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py `
+>>>>>>> Stashed changes
   --db run/data/full_api_20260827.db `
   --import-task1 `
   --task1-dir run/full_api_20260827/agent2_curated/notices `
@@ -315,3 +404,40 @@ D:\anaconda\envs\Aproject\python.exe scripts/verify_full_pipeline.py `
   --export-dir run/full_api_20260827/exports `
   --output run/full_api_20260827/platform_verification.json
 ```
+
+### 修改后检查
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe -m pytest -q `
+  --basetemp run/pytest_tmp_handoff `
+  -o cache_dir=run/pytest_cache_handoff
+
+D:\anaconda\envs\Aproject\python.exe -m compileall -q src scripts
+
+cd frontend
+npm.cmd run build
+```
+
+### 任务一 / 任务二隔离试跑（输出写新目录，不要覆盖全量 JSON）
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe scripts/run_entity_agent.py --backend rules
+
+D:\anaconda\envs\Aproject\python.exe scripts/run_entity_agent.py `
+  --backend local `
+  --keep-covered-text `
+  --max-model-calls 2 `
+  --max-total-tokens 40000
+
+D:\anaconda\envs\Aproject\python.exe scripts/run_relation_agent.py --backend rules --limit 20
+
+D:\anaconda\envs\Aproject\python.exe scripts/run_relation_agent.py `
+  --backend local `
+  --max-model-calls 2 `
+  --max-total-tokens 40000 `
+  --ids 20260814_27138985 `
+  --blocks-dir run/parser_2_1_20260828/notices `
+  --output-dir run/scratch/relation_probe/notices
+```
+
+本地模型必须先在 LM Studio 加载 `qwen/qwen3-4b-2507`（`http://127.0.0.1:1234`）。不要 `--commit` 到正式展示库。

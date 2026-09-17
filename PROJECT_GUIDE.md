@@ -1,6 +1,10 @@
 # 招采标讯实体挖掘与关系分析建模——项目总指导书
 
+<<<<<<< Updated upstream
 > 状态日期：2026-08-27。291篇外部API全量验证、任务一/二入库和任务三平台验收已经完成。新Codex会话先读`HANDOFF.md`；本轮数字以`run/full_api_20260827/FULL_PIPELINE_REPORT.md`和机器报告为准。
+=======
+> 状态日期：2026-09-03。页面展示为 v0.2 库（9B 批处理 + 4B 上传样本）+ Parser 2.1 Blocks。上传流水线已接通，运行时本地模型为 LM Studio `qwen/qwen3-4b-2507`。前端展示与交互已按现有主视觉优化（导入任务简介、检索表规格、图谱静力布局）。v0.1 API 全量数字仍以`run/full_api_20260827/FULL_PIPELINE_REPORT.md`为准；v0.2 9B 质量见`run/v0.2_local_20260828/QUALITY_AND_DISPLAY.md`；上传样本见`run/v0.2_local_20260828/PIPELINE_SAMPLES.md`。新会话先读`HANDOFF.md`。
+>>>>>>> Stashed changes
 
 ## 1. 项目目标
 
@@ -223,9 +227,15 @@ FastAPI单端口托管Vue生产构建，SQLite保存任务一实体、处理任�
 - 任务详情、状态和SSE；
 - 任务一字段检索、分页、详情、Block证据回读、CSV/XLSX全量导出；
 - 任务二五场景页面与图表；
+<<<<<<< Updated upstream
 - 按项目投影关系子图；
 - 系统状态页；
 - 空库和模型未配置的真实状态。
+=======
+- 按项目投影关系子图（分层静力布局，节点可拖拽、无弹力回拉）；
+- 系统状态页（本地模型名来自 `config/llm_config.yaml`）。
+- 导入页随任务一/二切换展示简介、字段和处理流程；检索表固定列宽、行高和滚动区高度。
+>>>>>>> Stashed changes
 
 尚未实现上传后的自动Parser → Selector → Agent → 入库编排。正式库当前有4,440条旧规则实体，任务二为空；4篇pilot使用独立数据库，不污染正式库。
 
@@ -285,6 +295,19 @@ conda run -n Aproject python scripts/run_relation_agent.py --backend local --com
 
 ### 10.6 平台
 
+改前端页面时用双进程（Vite 热更新）。浏览器打开 `http://127.0.0.1:5173/`：
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py --host 127.0.0.1 --port 8000
+```
+
+```powershell
+cd frontend
+npm.cmd run dev
+```
+
+演示或验收生产形态时再构建并单端口托管：
+
 ```powershell
 cd frontend
 npm run build
@@ -293,6 +316,11 @@ conda run -n Aproject python scripts/init_app_db.py --import-task1
 conda run -n Aproject python scripts/run_server.py
 ```
 
+<<<<<<< Updated upstream
+=======
+访问 `http://127.0.0.1:8000/`。默认读 v0.2 库和 Parser 2.1 Blocks，上传走本地 4B。切回 v0.1：`--db run/data/full_api_20260827.db --block-dir dataset_build/blocks/notices`。仅规则通道：`--pipeline-backend rules`。不要对冻结库重跑 `init_app_db.py`。完整命令表见 `HANDOFF.md`。
+
+>>>>>>> Stashed changes
 ## 11. 测试与效果口径
 
 当前自动化检查：
@@ -336,6 +364,7 @@ conda run -n Aproject python scripts/verify_model_substitute_pilot.py
 
 ## 13. 推荐实施顺序
 
+<<<<<<< Updated upstream
 1. 轮换API密钥，确认本地模型文件、许可、校验和及OpenAI兼容服务能启动；
 2. 在隔离目录用Parser 2.1.0重跑Blocks，比较受水印影响的公告；该步骤完全本地，不调用API；
 3. 对内容或Block ID变化的公告重跑Selector，并迁移受影响的金标证据引用；
@@ -347,6 +376,19 @@ conda run -n Aproject python scripts/verify_model_substitute_pilot.py
 9. 扩充并双人复核金标，补正式准确率、速率和查询P95；
 10. 编写官方数据适配器；
 11. 最后整理离线依赖、一键启动、设计文档、PPT、双视频和提交包。
+=======
+1. 轮换API密钥；不要重复已成功的外部API全量；
+2. 前端展示优化已完成，不要再把改版式列为下一步；改 Vue 用 Vite `5173` + 后端 `8000`；
+3. 优化任务一提示词/校验：`category_code`、弱表/正文漏抽；用20篇金标做同口径回归；
+4. 隔离补跑剩余空实体与任务二失败篇，写新目录，成功后再选择性入库；
+5. 为任务二准备含投标、得分、排名和审查表的人工关系金标，完成字段级评估；
+6. 扩充并双人复核金标，补正式准确率、速率和查询P95；
+7. 编写官方数据适配器；
+8. 若赛题最终要求自带GGUF，再落盘llama.cpp并做同口径回归；
+9. 最后整理离线依赖、一键启动、设计文档、PPT、双视频和提交包。
+
+Parser 2.1 隔离全量、上传流水线和前端展示优化已经完成，不要再把它们列为下一步。
+>>>>>>> Stashed changes
 
 ## 14. 文档入口
 

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { api } from './api'
+import type { PlatformStatus } from './types'
 
 const route = useRoute()
 const title = computed(() => String(route.meta.title || '标讯关系台'))
+const status = ref<PlatformStatus | null>(null)
 const navigation = [
   { to: '/status', label: '总览', index: '01' },
   { to: '/import', label: '数据导入', index: '02' },
@@ -11,6 +14,24 @@ const navigation = [
   { to: '/task2', label: '关系场景', index: '04' },
   { to: '/graph', label: '关系图谱', index: '05' },
 ]
+
+const modelReady = computed(() => {
+  const value = status.value?.model.status
+  return value === 'local' || value === 'rules'
+})
+
+const modelLabel = computed(() => {
+  const value = status.value?.model.status
+  if (value === 'local') return '本地模型已接通'
+  if (value === 'rules') return '规则通道就绪'
+  if (status.value) return '模型未加载'
+  return '正在读取状态'
+})
+
+onMounted(async () => {
+  try { status.value = await api<PlatformStatus>('/api/status') }
+  catch { /* 侧栏保持默认文案 */ }
+})
 </script>
 
 <template>
@@ -26,8 +47,8 @@ const navigation = [
         </RouterLink>
       </nav>
       <div class="sidebar-note">
-        <span class="status-dot"></span>
-        <div><strong>本地运行</strong><small>模型接入等待中</small></div>
+        <span class="status-dot" :class="{ ready: modelReady }"></span>
+        <div><strong>本地运行</strong><small>{{ modelLabel }}</small></div>
       </div>
     </aside>
     <main>

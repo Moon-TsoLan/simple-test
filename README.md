@@ -1,12 +1,16 @@
-# 招采标讯实体挖掘与关系分析建模
-
-“中国电子杯”第三届“四邮四电”高校ICT产教融合创新大赛 - 中国软件命题。
+# 识别与关系建模
 
 项目总体设计、技术栈、任务流程见 [PROJECT_GUIDE.md](./PROJECT_GUIDE.md)。新会话接手先读 [HANDOFF.md](./HANDOFF.md)，文档职责与阅读顺序见 [docs/README.md](./docs/README.md)。
 
 > **模型路线**：赛题允许赛前调用 API。本项目采用 **“API 做银标打标与提示词迭代 + 本地离线小模型做最终评测系统”** 的双轨制。API 不进入最终系统调用链。
 
+<<<<<<< Updated upstream
 > **最新全量验收（2026-08-27）**：291篇已完成Parser 2.0、Selector 1.3、任务一Agent 2.1、任务二Relation Agent 1.4、隔离数据库和FastAPI/Vue全链路测试。任务一1,411/1,411请求成功并得到3,552条实体；任务二291/291篇成功并得到563条竞标关系；56项pytest和Vue生产构建通过。详见 [全流程报告](./run/full_api_20260827/FULL_PIPELINE_REPORT.md)。
+=======
+> **当前页面展示（2026-09-03）**：v0.2 库 + Parser 2.1。上传流水线已接通，运行时本地模型 `qwen/qwen3-4b-2507`。前端展示已优化（导入任务简介、检索表规格、图谱静力布局）。磁盘上的全量 JSON 仍是 9B 产物（任务一 3,184 实体，任务二 282/291）；当前 SQLite 在此基础上多了两篇 4B 上传样本（3,185 实体 / 283 项目）。质量说明见 [QUALITY_AND_DISPLAY.md](./run/v0.2_local_20260828/QUALITY_AND_DISPLAY.md)，样本见 [PIPELINE_SAMPLES.md](./run/v0.2_local_20260828/PIPELINE_SAMPLES.md)。v0.1 API 冻结库不要覆盖。改页面请用 Vite `5173` + 后端 `8000`，命令见 [HANDOFF.md](./HANDOFF.md)。
+
+> **v0.1 全量验收（2026-08-27，已冻结）**：Parser 2.0 + DeepSeek API。任务一 3,552 实体、任务二 291/291 篇、563 条竞标。详见 [全流程报告](./run/full_api_20260827/FULL_PIPELINE_REPORT.md)。
+>>>>>>> Stashed changes
 
 ## 当前进度
 
@@ -27,7 +31,13 @@
 - [x] 任务一全量API验证：291篇、1,411请求全部完成，最终3,552条实体；20篇金标证据召回100%、严格全字段一致87.5%
 - [x] 任务二全量API验证：291篇全部完成，303个包件、563条竞标关系、1,234个有效证据引用
 - [x] 任务三全量隔离库验证：检索、证据回读、3,552行CSV/XLSX导出、五场景和项目子图全部通过
+<<<<<<< Updated upstream
 - [ ] 原始上传后自动触发Parser→Selector→任务一/二Agent→入库
+=======
+- [x] v0.2 本地 9B 全量并切换页面展示：任务一 3,184 实体，任务二 282/291 入库；见 `run/v0.2_local_20260828/QUALITY_AND_DISPLAY.md`
+- [x] 上传流水线：Parser → Selector/SlotPacker → Agent → 入库 → 页面；4B 已实测任务一 `20260723_26991563` 与任务二 `20260815_27141428`；当前库 3,185 实体 / 283 项目
+- [x] 前端展示优化：导入页任务简介/流程切换，检索表固定规格，图谱分层静力布局（可拖拽、无弹力）
+>>>>>>> Stashed changes
 
 ## 数据下载
 
@@ -82,6 +92,19 @@ conda run -n Aproject python scripts/run_relation_agent.py --backend rules --lim
 
 ## 本地可视化平台
 
+改 Vue 页面时开两个进程，浏览器访问 `http://127.0.0.1:5173/`：
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py --host 127.0.0.1 --port 8000
+```
+
+```powershell
+cd frontend
+npm.cmd run dev
+```
+
+演示用单端口托管构建产物，访问 `http://127.0.0.1:8000/`：
+
 ```powershell
 cd frontend
 npm install
@@ -95,7 +118,11 @@ conda run -n Aproject python scripts/init_app_db.py `
 conda run -n Aproject python scripts/run_server.py
 ```
 
+<<<<<<< Updated upstream
 启动隔离全量库时设置`APP_DB_PATH=run/data/full_api_20260827.db`，访问 `http://127.0.0.1:8000/`。不要覆盖旧`run/data/application.db`。详见 [docs/TASK3_PLATFORM.md](./docs/TASK3_PLATFORM.md)。
+=======
+默认读取 v0.2 库 `run/data/v0.2_local_20260828.db` 和 Parser 2.1 Blocks。上传 HTML/ZIP 会走 Parser → Agent → 入库。不要覆盖 `run/data/application.db` 或冻结的 `run/data/full_api_20260827.db`。切回 v0.1 时加 `--db run/data/full_api_20260827.db --block-dir dataset_build/blocks/notices`。完整命令见 [HANDOFF.md](./HANDOFF.md)，页面说明见 [docs/TASK3_PLATFORM.md](./docs/TASK3_PLATFORM.md)。
+>>>>>>> Stashed changes
 
 ## 本地模型替代小样本闭环
 

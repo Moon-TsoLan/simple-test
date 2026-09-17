@@ -28,8 +28,8 @@
 
 ### 数据导入
 
-- 选择任务一或任务二；
-- 批量上传 HTML、ZIP、JSON、JSONL；
+- 选择任务一或任务二；切换时左侧同步展示该任务的简介、抽取字段和处理流程（任务一：Parser 2.1 → Selector 1.3 → Entity Agent → 校验入库；任务二：Parser 2.1 → SlotPacker → Relation Agent → 校验入库）；
+- 批量上传 HTML、ZIP、JSON、JSONL；支持拖入文件；
 - 文件名安全化和重复名检查；
 - 单文件 200 MB、单批 500 MB 上限；
 - 文件逐块落盘，避免一次把大文件读入内存；
@@ -40,7 +40,9 @@
 ### 任务一检索
 
 - 全字段、公告编号、产品、品牌、品目、来源文件筛选；
-- 后端分页，单页最多 100 条；
+- 后端分页，单页最多 100 条；当前页固定 20 条展示；
+- 表格固定列宽、统一行高、表头吸顶、单元格省略号截断；滚动区高度固定，末页不满时规格与满页一致；
+- 点击行打开证据详情，Esc 关闭；
 - 实体详情和 `block_id + block_row` 证据定位；
 - 详情按需回读 Block JSON，显示原文表格行或文本摘录；
 - CSV/XLSX 全量导出，不受列表 100 条上限截断。
@@ -55,8 +57,10 @@
 
 ### 关系图谱
 
-- 选择已入库项目；
+- 选择已入库项目后自动加载；
 - 展示项目、采购单位、代理机构、包件、中标供应商、投标参与方、产品和产品供应商；
+- 分层静力布局（ECharts `layout: 'none'`），节点可拖拽，放下后不会被弹力拉回；
+- 标签默认在节点下方（项目节点在图形内），密集投标人可收起为聚合节点；
 - 图由 SQLite 权威表即时投影，不要求 Neo4j 才能运行。
 
 ### 系统状态
@@ -113,9 +117,20 @@ $env:APP_DB_PATH = "run/data/full_api_20260827.db"
 conda run -n Aproject python scripts/run_server.py --host 127.0.0.1 --port 8000
 ```
 
-浏览器访问 `http://127.0.0.1:8000/`。
+浏览器访问 `http://127.0.0.1:8000/`。这是托管上次 `npm run build` 的 `frontend/dist`，改 Vue 源码不会自动出现。
 
-前端开发模式可单独运行 `npm run dev`，Vite 会把 `/api` 转发到 8000 端口。
+前端迭代（热更新）必须另开 Vite，浏览器访问 `http://127.0.0.1:5173/`：
+
+```powershell
+D:\anaconda\envs\Aproject\python.exe scripts/run_server.py --host 127.0.0.1 --port 8000
+```
+
+```powershell
+cd D:\all_contest\2026_8_15_proc-bid-ner\frontend
+npm.cmd run dev
+```
+
+`frontend/vite.config.ts` 把 `/api` 代理到 `127.0.0.1:8000`。代理 502 时先看 8000 是否还在。完整命令表见根目录 `HANDOFF.md`。
 
 ## 6. 测试与当前边界
 

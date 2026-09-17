@@ -1,6 +1,12 @@
 <script setup lang="ts">
+<<<<<<< Updated upstream
 import { computed, onMounted, ref } from 'vue'
 import { api, queryString } from '../api'
+=======
+import { computed, onMounted, ref, watch } from 'vue'
+import { api, formatMoney, queryString } from '../api'
+import { shortTitle } from '../format'
+>>>>>>> Stashed changes
 import EmptyState from '../components/EmptyState.vue'
 import RelationChart from '../components/RelationChart.vue'
 import type { GraphData, Project } from '../types'
@@ -27,6 +33,21 @@ const nodeVisuals: Record<string, { color: string; symbol: string; labelInside?:
   聚合节点: { color: '#b7bdc9', symbol: 'roundRect', labelInside: true },
 }
 const legendOrder = ['项目', '包件', '采购单位', '代理机构', '中标供应商', '投标参与方', '产品', '产品供应商', '聚合节点']
+<<<<<<< Updated upstream
+=======
+// 始终展示的关键层级；其余节点在"关键标签"模式下只在悬停或聚焦时显示名称
+const keyLabelTypes = new Set(['项目', '包件', '采购单位', '代理机构', '中标供应商', '聚合节点'])
+
+const projectOptions = computed(() => projects.value.map(project => ({
+  value: project.project_id,
+  label: shortTitle(project.title || project.notice_id),
+  hint: [project.publish_date, project.notice_id].filter(Boolean).join(' · '),
+})))
+
+function visualOf(type: string) {
+  return nodeVisuals[type] || fallbackVisual
+}
+>>>>>>> Stashed changes
 
 function edgePriority(edge: GraphEdge, nodeById: Map<string, GraphNode>) {
   const rank = typeof edge.rank === 'number' ? edge.rank : Number.MAX_SAFE_INTEGER
@@ -154,8 +175,13 @@ const legendTypes = computed(() => {
 })
 
 async function loadGraph() {
+<<<<<<< Updated upstream
   if (!selected.value) return
+=======
+  if (!selected.value) { graph.value = { nodes: [], edges: [] }; loading.value = false; return }
+>>>>>>> Stashed changes
   loading.value = true
+  graph.value = { nodes: [], edges: [] }
   expanded.value = false
   try {
     graph.value = await api<GraphData>(`/api/task2/graph/subgraph${queryString({ project_id: selected.value })}`)
@@ -163,7 +189,14 @@ async function loadGraph() {
     loading.value = false
   }
 }
+<<<<<<< Updated upstream
 onMounted(async () => { projects.value = await api<Project[]>('/api/task2/projects?limit=200') })
+=======
+
+const currentProject = computed(() => projects.value.find(project => project.project_id === selected.value) || null)
+
+onMounted(async () => { projects.value = await api<Project[]>('/api/task2/projects?limit=5000') })
+>>>>>>> Stashed changes
 </script>
 
 <template>
@@ -181,6 +214,25 @@ onMounted(async () => { projects.value = await api<Project[]>('/api/task2/projec
       <div class="graph-help">拖拽节点调整位置，滚轮缩放画布；将鼠标移到节点或连线上查看完整信息。</div>
       <div class="legend"><span v-for="type in legendTypes" :key="type"><i :data-shape="nodeVisuals[type].symbol" :style="{ background: nodeVisuals[type].color }"></i>{{ type }}</span></div>
     </article>
+<<<<<<< Updated upstream
     <EmptyState v-else :title="projects.length ? '请选择一个项目' : '暂无可展示的项目关系'" :description="projects.length ? '图谱按项目即时从 SQLite 权威关系表投影，不依赖外部图数据库即可运行。' : '导入并结构化任务二数据后，这里将展示项目—组织—包件—产品关系。'" />
+=======
+
+    <EmptyState
+      v-else-if="loading"
+      title="正在加载图谱"
+      description="图由 SQLite 权威关系表即时投影，节点较多时可能需要一两秒。"
+    />
+    <EmptyState
+      v-else-if="selected"
+      title="该项目没有可展示的关系"
+      description="当前项目尚未抽出包件或主体关系。可以换一个项目，或到数据导入页补跑任务二。"
+    />
+    <EmptyState
+      v-else
+      :title="projects.length ? '请选择一个项目' : '暂无可展示的项目关系'"
+      :description="projects.length ? '图谱按项目即时从 SQLite 权威关系表投影，不依赖外部图数据库即可运行。下拉支持按标题或公告编号筛选。' : '导入并结构化任务二数据后，这里将展示项目—组织—包件—产品关系。'"
+    />
+>>>>>>> Stashed changes
   </section>
 </template>

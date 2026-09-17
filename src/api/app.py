@@ -152,7 +152,7 @@ def create_app(
         return {"project_id": project_id, "counts": relation_store.counts()}
 
     @app.get("/api/task2/projects")
-    def projects(q: str = "", limit: int = Query(50, ge=1, le=200)) -> list[dict]:
+    def projects(q: str = "", limit: int = Query(50, ge=1, le=5000)) -> list[dict]:
         return queries.projects(q, limit)
 
     @app.post("/api/task2/extract-candidate")
@@ -164,7 +164,7 @@ def create_app(
             raise HTTPException(422, f"invalid Block notice: {exc}") from exc
 
     @app.get("/api/task2/organizations")
-    def organizations(q: str = "", limit: int = Query(50, ge=1, le=200)) -> list[dict]:
+    def organizations(q: str = "", limit: int = Query(50, ge=1, le=5000)) -> list[dict]:
         return queries.organizations(q, limit)
 
     @app.get("/api/task2/aliases/review")

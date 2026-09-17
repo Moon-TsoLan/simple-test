@@ -20,7 +20,7 @@ class RelationQueries:
         with self.store.connect() as connection:
             return _rows(connection.execute(
                 "SELECT org_id,name,org_type FROM organizations WHERE name LIKE ? OR name_norm LIKE ? ORDER BY name LIMIT ?",
-                (f"%{query}%", f"%{normalized}%", max(1, min(limit, 200))),
+                (f"%{query}%", f"%{normalized}%", max(1, min(limit, 5000))),
             ))
 
     def projects(self, query: str = "", limit: int = 50) -> list[dict[str, Any]]:
@@ -29,7 +29,7 @@ class RelationQueries:
                 "SELECT project_id,notice_id,title,project_no,publish_date FROM projects "
                 "WHERE title LIKE ? OR notice_id LIKE ? OR COALESCE(project_no,'') LIKE ? "
                 "ORDER BY COALESCE(publish_date,'') DESC,title LIMIT ?",
-                (f"%{query}%", f"%{query}%", f"%{query}%", max(1, min(limit, 200))),
+                (f"%{query}%", f"%{query}%", f"%{query}%", max(1, min(limit, 5000))),
             ))
 
     def alias_review_queue(self, limit: int = 100) -> list[dict[str, Any]]:

@@ -4,7 +4,7 @@
 
 任务三已形成可本地运行的单端口系统：FastAPI 提供数据、任务、导出和关系分析接口；Vue 3 提供数据导入、任务一检索、任务二五场景、项目图谱和系统状态页面；SQLite 保存任务一实体、任务状态和任务二关系数据；Vue 构建产物由 FastAPI 直接托管。
 
-当前模型未就绪，因此原始HTML/ZIP上传完成后仍停在`staged / ready_for_pipeline`。这是显式等待状态，不代表已经完成解析或抽取。
+2026-09-03 起上传流水线已接通（`src/api/pipeline.py`）：HTML/ZIP 上传后自动走 Parser → Selector/SlotPacker → Agent → SQLite 入库，SSE 实时跟踪进度，`completed`/`failed` 结束；JSON/JSONL 可直接入库。运行时本地模型为 LM Studio `qwen/qwen3-4b-2507`（`http://127.0.0.1:1234`）；计划切换为外部 API 后端以适配官方数据与评测平台。
 
 2026-08-27已建立不覆盖旧正式库的全量隔离库`run/data/full_api_20260827.db`：任务一291篇/3,552条实体，任务二291项目/303包件/563条竞标关系。检索、证据回读、全量CSV/XLSX、五场景、项目图和Vue生产构建均通过。机器报告为`run/full_api_20260827/platform_verification.json`。
 
@@ -34,8 +34,7 @@
 - 单文件 200 MB、单批 500 MB 上限；
 - 文件逐块落盘，避免一次把大文件读入内存；
 - SQLite 记录任务、文件状态、成功/失败数；
-- SSE 与任务详情接口已提供；
-- 模型未就绪时明确显示“文件已暂存，等待流水线”。
+- SSE 与任务详情接口已提供，流水线各阶段进度实时推送，`completed`/`failed` 结束。
 
 ### 任务一检索
 
@@ -156,7 +155,7 @@ conda run -n Aproject python -m pytest -q
 - CSV与XLSX均完整导出3,552行；
 - 全量库六类关系查询及项目图均返回非空结果；
 - 单次任务一搜索约8ms、关系查询约2.5–4.2ms、全量XLSX约0.60s；
-- 58项pytest、Python编译检查和Vue生产构建通过。
+- 59项pytest（含上传流水线集成测试）、Python编译检查和Vue生产构建通过。
 
 当前Vue生产构建通过；ECharts关系图相关分包约508KB，Vite会给出大于500KB的体积警告，但不影响构建和运行。只有正式演示中出现明显首屏或图谱加载问题时，再使用动态导入或`manualChunks`拆包。
 

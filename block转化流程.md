@@ -1,6 +1,6 @@
 # 招标公告与附件Block转换流程
 
-> 当前291篇正式产物：Parser `2.0.0`，Schema `1.1`。最新代码已升级到Parser `2.1.0`并加入PDF原生水印过滤，但尚未覆盖正式目录；因此本文数字仍只描述2.0.0统一全量产物。技术字段定义见`docs/BLOCK_PARSER.md`和`docs/block_schema.json`。
+> 状态（2026-09-17）：Parser 代码为 `2.1.0`（含PDF原生水印过滤）。存在两个Block目录——正式`dataset_build/blocks/`仍为Parser `2.0.0`全量产物（274,597 Blocks）；v0.2展示与上传流水线使用`run/parser_2_1_20260828/notices`（Parser 2.1.0隔离全量，274,586 Blocks）。本文流程描述对两个版本均适用，数字以2.0.0全量产物为准。技术字段定义见`docs/BLOCK_PARSER.md`和`docs/block_schema.json`。
 
 ## 1. Block是什么
 

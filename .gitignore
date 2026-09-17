@@ -9,7 +9,7 @@
 .codex/
 .vscode/
 .idea/
-
+.workbuddy/
 # Runtime & generated outputs
 run/
 results/**/*

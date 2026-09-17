@@ -43,11 +43,43 @@ ATTACH_DIR = CRAWL_DIR / "attachments"
 LOG_DIR = CRAWL_DIR / "logs"
 STATE_DIR = CRAWL_DIR / "state"
 MANIFEST_DIR = ROOT / "dataset_build" / "manifests"
-MIRROR_T1_NOTICES = ROOT / "dataset_build" / "mirror_task1" / "notices"
-MIRROR_T1_ATTACH = ROOT / "dataset_build" / "mirror_task1" / "attachments"
+MIRROR_T1_NOTICES: Path | None = ROOT / "dataset_build" / "mirror_task1" / "notices"
+MIRROR_T1_ATTACH: Path | None = ROOT / "dataset_build" / "mirror_task1" / "attachments"
 
-for d in (HTML_DIR, ATTACH_DIR, LOG_DIR, STATE_DIR, MANIFEST_DIR, MIRROR_T1_NOTICES, MIRROR_T1_ATTACH):
-    d.mkdir(parents=True, exist_ok=True)
+
+def configure_paths(output_root: Path | str | None = None, *, enable_mirror: bool = True) -> None:
+    """Point crawl outputs at ``output_root``; skip the legacy task-1 mirror when disabled."""
+    global CRAWL_DIR, HTML_DIR, ATTACH_DIR, LOG_DIR, STATE_DIR, MANIFEST_DIR
+    global MIRROR_T1_NOTICES, MIRROR_T1_ATTACH
+    if output_root is None:
+        CRAWL_DIR = ROOT / "dataset_build" / "crawl"
+        MANIFEST_DIR = ROOT / "dataset_build" / "manifests"
+    else:
+        CRAWL_DIR = Path(output_root)
+        if not CRAWL_DIR.is_absolute():
+            CRAWL_DIR = ROOT / CRAWL_DIR
+        MANIFEST_DIR = CRAWL_DIR / "manifests"
+    HTML_DIR = CRAWL_DIR / "html"
+    ATTACH_DIR = CRAWL_DIR / "attachments"
+    LOG_DIR = CRAWL_DIR / "logs"
+    STATE_DIR = CRAWL_DIR / "state"
+    dirs = [HTML_DIR, ATTACH_DIR, LOG_DIR, STATE_DIR, MANIFEST_DIR]
+    if enable_mirror:
+        MIRROR_T1_NOTICES = ROOT / "dataset_build" / "mirror_task1" / "notices"
+        MIRROR_T1_ATTACH = ROOT / "dataset_build" / "mirror_task1" / "attachments"
+        dirs.extend([MIRROR_T1_NOTICES, MIRROR_T1_ATTACH])
+    else:
+        MIRROR_T1_NOTICES = None
+        MIRROR_T1_ATTACH = None
+    for path in dirs:
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def _relpath(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 DEFAULT_HEADERS = {
     "User-Agent": (
@@ -381,7 +413,7 @@ def download_attachment(session: SafeSession, att: dict, out_dir: Path, referer:
     errors = []
     for cand in candidates:
         try:
-            raw = session.get_text_or_bytes(cand, referer=referer, timeout=180, raw=True, retries=2, backoff=10.0)
+            raw = session.get_text_or_bytes(cand, referer=referer, timeout=180, raw=True, retries=1, backoff=2.0)
             break
         except Exception as exc:
             errors.append(f"{cand}: {exc}")
@@ -469,8 +501,14 @@ def save_manifest(manifest: dict) -> None:
 
 def mirror_to_task1(notice: dict) -> None:
     """把已抓取公告镜像成官方任务一目录结构：一篇公告一个 zip，公告为 html 文件。"""
+    if MIRROR_T1_NOTICES is None or MIRROR_T1_ATTACH is None:
+        return
     html_src = Path(notice["html_file"]) if notice.get("html_file") else None
     zip_src = Path(notice["zip_file"]) if notice.get("zip_file") else None
+    if html_src and not html_src.is_absolute():
+        html_src = ROOT / html_src
+    if zip_src and not zip_src.is_absolute():
+        zip_src = ROOT / zip_src
     if html_src and html_src.exists():
         dst = MIRROR_T1_NOTICES / html_src.name
         if not dst.exists():
@@ -561,8 +599,8 @@ def process_notice(session: SafeSession, item: dict, args, manifest: dict,
                 "publish_time": item.get("publish_time"),
                 "region": item.get("region"),
                 "buyer": item.get("buyer"),
-                "html_file": str(html_path.relative_to(ROOT)),
-                "json_file": str(json_path.relative_to(ROOT)),
+                "html_file": _relpath(html_path),
+                "json_file": _relpath(json_path),
                 "html_ok": True,
                 "attachments": [],
                 "status": "html_ok",
@@ -604,7 +642,7 @@ def process_notice(session: SafeSession, item: dict, args, manifest: dict,
             }
             if ok_files:
                 zip_path = make_zip(nid, ok_files, files_manifest)
-                entry["zip_file"] = str(zip_path.relative_to(ROOT))
+                entry["zip_file"] = _relpath(zip_path)
                 entry["attachments"] = files
                 entry["attachment_ok_count"] = len(ok_files)
                 entry["attachment_total_count"] = len(files)
@@ -659,13 +697,29 @@ def main() -> None:
     ap.add_argument("--skip-incomplete", action="store_true", help="跳过此前附件未下全的公告，不再反复重试")
     ap.add_argument("--target-ext", default="", help="目标附件扩展名（逗号分隔，如 xls,xlsx,rar,jpg）")
     ap.add_argument("--target-min", type=int, default=5, help="每个目标扩展名至少达到的数量，达到后提前结束")
+    ap.add_argument(
+        "--output-root",
+        type=Path,
+        default=None,
+        help="抓取根目录（HTML/附件/断点）。默认 dataset_build/crawl；指定后清单写在该目录 manifests/",
+    )
+    ap.add_argument("--no-mirror", action="store_true", help="不写入 dataset_build/mirror_task1")
+    ap.add_argument(
+        "--stop-after-paired",
+        type=int,
+        default=0,
+        help="成功凑齐 N 对 HTML+ZIP 后停止；0 表示不限制",
+    )
     args = ap.parse_args()
+    enable_mirror = not args.no_mirror and args.output_root is None
+    configure_paths(args.output_root, enable_mirror=enable_mirror)
 
     target_exts = [s.strip() for s in (args.target_ext or "").split(",") if s.strip()]
     manifest = load_manifest()
     seen = load_state("seen.json")
     failed = load_state("failed.json")
     log(f"模式={args.mode} 栏目={args.sources} 列表页/栏目={args.max_pages} 上限={args.max_notices} "
+        f"输出={CRAWL_DIR} 镜像={'开' if enable_mirror else '关'} "
         f"目标扩展名={target_exts or '无'}×{args.target_min}")
 
     notices = collect_notices(args)
@@ -702,6 +756,11 @@ def main() -> None:
         ok = process_notice(session, item, args, manifest, seen, failed)
         ok_count += int(ok)
         fail_count += int(not ok)
+        if args.stop_after_paired:
+            paired = sum(1 for n in manifest["notices"].values() if n.get("html_ok") and n.get("zip_file"))
+            if paired >= args.stop_after_paired:
+                log(f"[STOP] 已凑齐 {paired} 对 HTML+ZIP")
+                break
         if target_exts:
             counts = attachment_ext_counts(manifest)
             log(f"[EXT] {dict(sorted(counts.items()))}")

@@ -26,7 +26,8 @@
 | `docs/TASK3_PLATFORM.md` | 任务三FastAPI、Vue与SQLite平台 |
 | `run/full_api_20260827/FULL_PIPELINE_REPORT.md` | v0.1外部API全流程验收事实源 |
 | `run/v0.2_local_20260828/QUALITY_AND_DISPLAY.md` | v0.2本地模型质量与展示切换事实源 |
-| `scripts/crawl/README.md` | 自建数据抓取和镜像同步 |
+| `scripts/crawl/README.md` | 自建数据抓取、假官方集 HTML+ZIP 对照台 |
+| `scripts/adapt/README.md` | 官方约 1000 条薄适配器（映射为 notices+attachments） |
 
 数据目录内的`README.md`只解释该批产物，不承担总体设计职责。
 
